@@ -195,7 +195,7 @@ def load_and_process_data(file_path):
     """
     Loads a CSV file from the given path and preprocesses the data.
     """
-    df = pd.read_csv("/Users/mohit/Downloads/sentiments_raw.csv")
+    df = pd.read_csv("sentiments_raw.csv")
     
     df.columns = df.columns.str.strip()
     
