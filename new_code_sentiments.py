@@ -195,7 +195,7 @@ def load_and_process_data(file_path):
     """
     Loads a CSV file from the given path and preprocesses the data.
     """
-    df = pd.read_csv("sentiments_raw.csv")
+    df = pd.read_csv("data_sentiments.csv")
     
     df.columns = df.columns.str.strip()
     
@@ -888,7 +888,7 @@ def main_app():
     st.markdown('<h1 class="main-header">📊 PulsePoint - Voice of the Customer</h1>', unsafe_allow_html=True)
     
     # --- Predefined File Path ---
-    csv_file_path = "/Users/mohit/Downloads/data_sentiments - Sheet1 (7).csv" 
+    csv_file_path = "data_sentiments.csv" 
     # --- End Predefined File Path ---
 
     # Static list for customer types to ensure only Consigner/Operator are explicitly shown
