@@ -1008,7 +1008,7 @@ def main_app():
             # Display summary metrics on the main dashboard area for all pages
             col1, col2, col3 = st.columns(3)
             with col1:
-                playstore_count = len(df_to_display[df_to_display['source'].str.contains('PlayStore', case=False, na=False)])
+                playstore_count = len(df_to_display[df_to_display['source'].str.contains('play_store', case=False, na=False)])
                 st.metric("📱 PlayStore Reviews (Filtered)", playstore_count)
             with col2:
                 trip_count = len(df_to_display[df_to_display['source'].str.contains('Trip', case=False, na=False)])
