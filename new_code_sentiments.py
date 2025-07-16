@@ -717,7 +717,7 @@ def create_playstore_view(df):
     """
     Generates the PlayStore-specific dashboard view with key metrics and visualizations.
     """
-    playstore_df = df[df['source'].str.contains('PlayStore', case=False, na=False)]
+    playstore_df = df[df['source'].str.contains('play_store', case=False, na=False)]
     
     create_common_sections(playstore_df, "📱 PlayStore Feedback Analysis", "Dive deep into customer sentiment from PlayStore reviews. Understand ratings distribution, detailed sentiment buckets, and identify recent negative feedback for immediate action.")
 
