@@ -901,7 +901,7 @@ def main_app():
         
         sentiment_method = st.selectbox(
             "🧠 Sentiment Analysis Method",
-            ["TextBlob", "Transformer"] if transformer_available else ["TextBlob"],
+            ["TextBlob"] if transformer_available else ["TextBlob"],
             key="global_sentiment_method", # Unique key for this widget
             help="Choose the sentiment analysis method. Transformer models are more accurate but slower. Requires 'transformers' library."
         )
