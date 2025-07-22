@@ -1055,7 +1055,7 @@ def main_app():
             st.write(f"Detailed error: {e}")
 
     # Add creators' names at the very bottom
-    st.markdown("<p style='text-align: center; margin-top: 50px; color: #777;'>Developed with ❤️ by Yash & Mohit</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; margin-top: 50px; color: #777;'>Developed by Yash & Mohit</p>", unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main_app()
