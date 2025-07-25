@@ -654,16 +654,21 @@ def create_enhanced_common_sections(df, view_title, description, include_wordclo
         # Enhanced stop words for better word clouds
         analyzer = EnhancedSentimentAnalyzer()
         stop_words_set = set(stopwords.words('english'))
-        enhanced_stop_words = {'app', 'service,'driver', 'phone', 'customer', 'team', 'ride', 'one', 'get', 'would', 'really', 'back',
-            'much', 'go', 'like', 'just', 'can', 'even', 'still', 'know', 'dont', 'didnt', 'always',
-            'also', 'never', 'nothing', 'please', 'call', 'want', 'make', 'think', 'need', 'issue',
-            'problem', 'support', 'time', 'day', 'use', 'try', 'way', 'thing', 'people', 'good', 'bad',
-            'great', 'every', 'us', 'said', 'found', 'getting', 'not', 'will', 'vehicle', 'vehical',
-            'gadi', 'truck', 'rupees', 'rs', 'money', 'sir', 'mam', 'kindly', 'pls', 'plz', 'share',
-            'provide', 'update', 'check', 'due', 'tell', 'give', 'take', 'see', 'come', 'well', 'may',
-            'could', 'should', 'would', 'might', 'must', 'shall', 'let', 'made', 'make', 'say', 'said',
-            'told', 'thank', 'thanks', 'ok', 'okay', 'yes', 'no', 'hi', 'hello'
-        }
+        enhanced_stop_words = {
+    "app", "service", "driver", "phone", "customer", "team", "ride", "one",
+    "get", "would", "really", "back", "much", "go", "like", "just", "can",
+    "even", "still", "know", "dont", "didnt", "always", "also", "never",
+    "nothing", "please", "call", "want", "make", "think", "need", "issue",
+    "problem", "support", "time", "day", "use", "try", "way", "thing",
+    "people", "good", "bad", "great", "every", "us", "said", "found",
+    "getting", "not", "will", "vehicle", "vehical", "gadi", "truck",
+    "rupees", "rs", "money", "sir", "mam", "kindly", "pls", "plz",
+    "share", "provide", "update", "check", "due", "tell", "give",
+    "take", "see", "come", "well", "may", "could", "should", "would",
+    "might", "must", "shall", "let", "made", "make", "say", "said",
+    "told", "thank", "thanks", "ok", "okay", "yes", "no", "hi", "hello"
+}
+
         stop_words_set.update(enhanced_stop_words)
 
         with col1:
