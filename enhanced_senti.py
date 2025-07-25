@@ -654,9 +654,7 @@ def create_enhanced_common_sections(df, view_title, description, include_wordclo
         # Enhanced stop words for better word clouds
         analyzer = EnhancedSentimentAnalyzer()
         stop_words_set = set(stopwords.words('english'))
-        enhanced_stop_words = {
-            'app', 'service,
-            'driver', 'phone', 'customer', 'team', 'ride', 'one', 'get', 'would', 'really', 'back',
+        enhanced_stop_words = {'app', 'service,'driver', 'phone', 'customer', 'team', 'ride', 'one', 'get', 'would', 'really', 'back',
             'much', 'go', 'like', 'just', 'can', 'even', 'still', 'know', 'dont', 'didnt', 'always',
             'also', 'never', 'nothing', 'please', 'call', 'want', 'make', 'think', 'need', 'issue',
             'problem', 'support', 'time', 'day', 'use', 'try', 'way', 'thing', 'people', 'good', 'bad',
