@@ -966,114 +966,105 @@ def main_app():
         st.markdown("• **Super Sad:** Explicitly negative (Negative sentiment + Rating 1/2) OR Consistently bad & engaged (>=3 feedback, at least one bad rating, avg sentiment < -0.1).")
 
 
-    try:
-        with st.spinner(f"📊 Loading and processing your data from {csv_file_path}..."):
-            df = load_and_process_data(csv_file_path)
-            
-            # Apply global date filter
+          try:
+            with st.spinner(f"📊 Loading and processing your data from {csv_file_path}..."):
+                df = load_and_process_data(csv_file_path)
 
-            if 'timestamp_' in df.columns and pd.api.types.is_datetime64_any_dtype(df['timestamp_']):
-                df_filtered = df[(df['timestamp_'].dt.date >= start_date) & (df['timestamp_'].dt.date <= end_date)].copy()
-            else:
-                st.warning("timestamp_ column is not datetime. Skipping date filter.")
-                df_filtered = df.copy()
-                
-            st.write(f"DEBUG: Records after Date Filter: {len(df_filtered)}") 
-                
-                
-                # Debugging statement
-                
-            if time_granularity == "Daily":
-                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.date
-            elif time_granularity == "Weekly":
-                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('W').astype(str)
-            elif time_granularity == "Monthly":
-                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('M').astype(str)
-            else:
-                st.warning("timestamp_ column not found or is empty. Date filtering and time trends will not be available.")
-                df_filtered = df.copy() 
-                df_filtered['time_period'] = 'N/A' 
-                
-            df_processed_all = perform_sentiment_analysis(df_filtered, method=sentiment_method)
-            df_processed_all = create_sentiment_buckets(df_processed_all)
+                # Apply global date filter
+                if 'timestamp_' in df.columns and pd.api.types.is_datetime64_any_dtype(df['timestamp_']):
+                    df_filtered = df[
+                        (df['timestamp_'].dt.date >= start_date) &
+                        (df['timestamp_'].dt.date <= end_date)
+                    ].copy()
 
-            # Apply the selected customer type filter to all data
-            if selected_customer_type != 'All':
-                df_to_display = df_processed_all[df_processed_all['customer_type'] == selected_customer_type].copy()
-            else:
-                df_to_display = df_processed_all.copy()
-            st.write(f"DEBUG: Records after Customer Type ('{selected_customer_type}') Filter: {len(df_to_display)}") # Debugging statement
-            
-            if df_to_display.empty:
-            st.error("No data available after applying initial filters and view selection. Please adjust your date range, check the input CSV file, or try different customer type filters.")
-            return # Exit function if no data
-    else:
-            st.success(f"✅ Processed {len(df_to_display)} feedback records successfully for the selected view, period, and customer type!")
-            
-            # --- Download Button for Processed Data ---
-            csv_output = df_to_display.to_csv(index=False).encode('utf-8')
-            download_file_name = f"processed_sentiment_data_{page_selection.replace(' ', '_').replace('📈','').replace('📱','').replace('🚗','').replace('🚨','')}_{selected_customer_type}.csv"
-            st.download_button(
-                label="⬇️ Download Processed Data (CSV)",
-                data=csv_output,
-                file_name=download_file_name,
-                mime="text/csv",
-                help="Download the current filtered and processed feedback data."
-            )
-            st.markdown("---")
-            # --- End Download Button ---
+                    # Add time-period column based on granularity
+                    if time_granularity == "Daily":
+                        df_filtered['time_period'] = df_filtered['timestamp_'].dt.date
+                    elif time_granularity == "Weekly":
+                        df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('W').astype(str)
+                    elif time_granularity == "Monthly":
+                        df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('M').astype(str)
 
-            # Display summary metrics on the main dashboard area for all pages
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                playstore_count = len(df_to_display[df_to_display['source'].str.contains('play_store', case=False, na=False)])
-                st.metric("📱 PlayStore Reviews (Filtered)", playstore_count)
-            with col2:
-                trip_count = len(df_to_display[df_to_display['source'].str.contains('Trip', case=False, na=False)])
-                st.metric("🚗 Trip Feedbacks (Filtered)", trip_count)
-            with col3:
-                escalation_count = len(df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)])
-                st.metric("🚨 Escalations (Filtered)", escalation_count)
-            st.markdown("---") # Separator after metrics
+                else:
+                    st.warning("timestamp_ column is not datetime. Skipping date filter.")
+                    df_filtered = df.copy()
+                    df_filtered['time_period'] = 'N/A'
 
-            # Render the selected page content
-            if page_selection == "📈 Overview":
-                create_overview_dashboard(df_to_display)
-            elif page_selection == "📱 PlayStore Feedback":
-                create_playstore_view(df_to_display)
-            elif page_selection == "🚗 Trip Feedback":
-                create_trip_feedback_view(df_to_display)
-            elif page_selection == "🚨 Escalations":
-                # Add debugging specific to escalation view here
-                st.write(f"DEBUG: Entering Escalation View. Records in current DataFrame: {len(df_to_display)}")
-                escalation_df_filtered_source = df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)].copy()
-                st.write(f"DEBUG: Records in Escalation View (after source filter): {len(escalation_df_filtered_source)}")
-                create_escalation_view(escalation_df_filtered_source)
-            
-    except FileNotFoundError:
-        st.error(f"❌ Error: The file was not found at the specified path: `{csv_file_path}`")
-        st.info("Please ensure your 'data_sentiments - Sheet1 (4).csv' file is located in the same directory as your script, or update the `csv_file_path` variable with the correct absolute path.")
-    except pd.errors.EmptyDataError:
-        st.error(f"❌ Error: The file at `{csv_file_path}` is empty or has no data.")
-        st.info("Please ensure your CSV file contains data.")
-    except Exception as e:
-        st.error(f"❌ An unexpected error occurred during data processing: {str(e)}")
-        st.info("Please verify your CSV file's format. It should contain columns like `feedback_id`, `timestam` (or `timestamp_`), `source`, `user_id`, `rating`, `feedback`, `escalated_flag`, and `customer_type`.")
-        
-        with st.expander("🔍 Show Detailed Error Information"):
-            st.write(f"Attempted to load data from: `{csv_file_path}`")
-            st.write("First few rows of your file (if readable):")
-            try:
-                temp_df = pd.read_csv(csv_file_path)
-                st.dataframe(temp_df.head())
-                st.write("Detected column names in your file:")
-                st.write(list(temp_df.columns))
-            except Exception as inner_e:
-                st.write(f"Could not read the file or display its head due to an internal error: {inner_e}")
-            st.write(f"Detailed error: {e}")
+                st.write(f"DEBUG: Records after Date Filter: {len(df_filtered)}")
 
-    # Add creators' names at the very bottom
-    st.markdown("<p style='text-align: center; margin-top: 50px; color: #777;'>Developed by Yash & Mohit</p>", unsafe_allow_html=True)
+                df_processed_all = perform_sentiment_analysis(df_filtered, method=sentiment_method)
+                df_processed_all = create_sentiment_buckets(df_processed_all)
 
-if __name__ == "__main__":
-    main_app()
+                # Apply customer-type filter
+                if selected_customer_type != 'All':
+                    df_to_display = df_processed_all[
+                        df_processed_all['customer_type'] == selected_customer_type
+                    ].copy()
+                else:
+                    df_to_display = df_processed_all.copy()
+
+                st.write(f"DEBUG: Records after Customer Type ('{selected_customer_type}') Filter: {len(df_to_display)}")
+
+                if df_to_display.empty:
+                    st.error("No data available after applying filters. Adjust date range or filters.")
+                    return
+
+                st.success(f"✅ Processed {len(df_to_display)} feedback records successfully!")
+
+                # --- Download Button ---
+                csv_output = df_to_display.to_csv(index=False).encode('utf-8')
+                download_file_name = (
+                    f"processed_sentiment_data_"
+                    f"{page_selection.replace(' ', '_').translate(str.maketrans('', '', '📈📱🚗🚨'))}_"
+                    f"{selected_customer_type}.csv"
+                )
+                st.download_button(
+                    label="⬇️ Download Processed Data (CSV)",
+                    data=csv_output,
+                    file_name=download_file_name,
+                    mime="text/csv"
+                )
+                st.markdown("---")
+
+                # --- Summary Metrics ---
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    playstore_count = len(
+                        df_to_display[df_to_display['source'].str.contains('play_store', case=False, na=False)]
+                    )
+                    st.metric("📱 PlayStore Reviews (Filtered)", playstore_count)
+                with col2:
+                    trip_count = len(
+                        df_to_display[df_to_display['source'].str.contains('Trip', case=False, na=False)]
+                    )
+                    st.metric("🚗 Trip Feedbacks (Filtered)", trip_count)
+                with col3:
+                    escalation_count = len(
+                        df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)]
+                    )
+                    st.metric("🚨 Escalations (Filtered)", escalation_count)
+                st.markdown("---")
+
+                # --- Render Selected Page ---
+                if page_selection == "📈 Overview":
+                    create_overview_dashboard(df_to_display)
+                elif page_selection == "📱 PlayStore Feedback":
+                    create_playstore_view(df_to_display)
+                elif page_selection == "🚗 Trip Feedback":
+                    create_trip_feedback_view(df_to_display)
+                elif page_selection == "🚨 Escalations":
+                    st.write(f"DEBUG: Entering Escalation View. Total records: {len(df_to_display)}")
+                    escalation_df = df_to_display[
+                        df_to_display['source'].str.contains('Escalation', case=False, na=False)
+                    ].copy()
+                    st.write(f"DEBUG: Escalation records: {len(escalation_df)}")
+                    create_escalation_view(escalation_df)
+
+        except FileNotFoundError:
+            st.error(f"❌ File not found: `{csv_file_path}`")
+        except pd.errors.EmptyDataError:
+            st.error("❌ The file is empty or unreadable.")
+        except Exception as e:
+            st.error(f"❌ Unexpected error: {e}")
+            with st.expander("🔍 Show Details"):
+                st.exception(e)
