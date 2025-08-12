@@ -198,8 +198,10 @@ def load_and_process_data(file_path):
     df = pd.read_csv("feedbacks_1.csv")
 
     if 'timestamp_' in df.columns:
+    
     df['timestamp_'] = pd.to_datetime(df['timestamp_'], errors='coerce')
-    elif 'timestamp' in df.columns:
+    
+elif 'timestamp' in df.columns:
     df['timestamp_'] = pd.to_datetime(df['timestamp'], errors='coerce')
 
 
