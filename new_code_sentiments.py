@@ -198,6 +198,18 @@ def load_and_process_data(file_path):
     df = pd.read_csv("feedbacks_1.csv")
 
     df['timestamp_'] = df['timestamp_'].dt.date
+
+    cols_to_keep = [
+    'feedback_id',
+    'timestamp_',
+    'source',
+    'user_id',
+    'rating',
+    'feedback',
+    'escalated_flag',
+    'customer_type']
+
+    df = df[cols_to_keep]
     
     df.columns = df.columns.str.strip()
     
