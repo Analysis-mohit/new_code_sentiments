@@ -985,9 +985,9 @@ def main_app():
                 
             if time_granularity == "Daily":
                     df_filtered['time_period'] = df_filtered['timestamp_'].dt.date
-                elif time_granularity == "Weekly":
+            elif time_granularity == "Weekly":
                     df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('W').astype(str)
-                elif time_granularity == "Monthly":
+            elif time_granularity == "Monthly":
                     df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('M').astype(str)
             else:
                 st.warning("timestamp_ column not found or is empty. Date filtering and time trends will not be available.")
@@ -1003,11 +1003,11 @@ def main_app():
             else:
                 df_to_display = df_processed_all.copy()
             st.write(f"DEBUG: Records after Customer Type ('{selected_customer_type}') Filter: {len(df_to_display)}") # Debugging statement
-        
-        if df_to_display.empty:
+            
+            if df_to_display.empty:
             st.error("No data available after applying initial filters and view selection. Please adjust your date range, check the input CSV file, or try different customer type filters.")
             return # Exit function if no data
-        else:
+    else:
             st.success(f"✅ Processed {len(df_to_display)} feedback records successfully for the selected view, period, and customer type!")
             
             # --- Download Button for Processed Data ---
