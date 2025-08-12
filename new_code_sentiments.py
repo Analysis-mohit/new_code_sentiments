@@ -965,8 +965,7 @@ def main_app():
         st.markdown("• **Super Happy:** Explicitly positive (Positive sentiment + Rating 4/5) OR Consistently good & engaged (>=5 feedback, no bad ratings, avg sentiment > 0.1).")
         st.markdown("• **Super Sad:** Explicitly negative (Negative sentiment + Rating 1/2) OR Consistently bad & engaged (>=3 feedback, at least one bad rating, avg sentiment < -0.1).")
 
-
-          try:
+        try:
             with st.spinner(f"📊 Loading and processing your data from {csv_file_path}..."):
                 df = load_and_process_data(csv_file_path)
 
@@ -1068,3 +1067,6 @@ def main_app():
             st.error(f"❌ Unexpected error: {e}")
             with st.expander("🔍 Show Details"):
                 st.exception(e)
+
+
+          
