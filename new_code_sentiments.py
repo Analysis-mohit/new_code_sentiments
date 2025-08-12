@@ -206,12 +206,12 @@ def load_and_process_data(file_path):
     df.columns = df.columns.str.strip()
     
     if 'timestamp_' in df.columns:
-        df['timestamp'] = pd.to_datetime(df['timestam'], errors='coerce')
-    elif 'timestamp' in df.columns:
-        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        df['timestamp_'] = pd.to_datetime(df['timestamp_'], errors='coerce')
+    elif 'timestamp_' in df.columns:
+        df['timestamp_'] = pd.to_datetime(df['timestamp_'], errors='coerce')
     else:
-        st.warning("Neither 'timestam' nor 'timestamp' column found. Time-series analysis will be limited.")
-        df['timestamp'] = pd.NaT 
+        st.warning("Neither 'timestamp_' nor 'timestamp_' column found. Time-series analysis will be limited.")
+        df['timestamp_'] = pd.NaT 
     
     df['feedback'] = df['feedback'].fillna('').astype(str)
     df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
@@ -751,9 +751,9 @@ def create_playstore_view(df):
     st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>🔍 Recent Negative PlayStore Feedback (Action Required)</h3>", unsafe_allow_html=True)
     negative_ps = playstore_df[playstore_df['predicted_sentiment'] == 'Negative'].head(10) # Show top 10
     if not negative_ps.empty:
-        display_cols = ['timestamp', 'feedback', 'rating', 'sentiment_score', 'escalated_flag']
+        display_cols = ['timestamp_', 'feedback', 'rating', 'sentiment_score', 'escalated_flag']
         available_cols = [col for col in display_cols if col in negative_ps.columns]
-        st.dataframe(negative_ps[available_cols].sort_values('timestamp', ascending=False), use_container_width=True)
+        st.dataframe(negative_ps[available_cols].sort_values('timestamp_', ascending=False), use_container_width=True)
     else:
         st.info("No recent negative PlayStore feedback found.")
 
@@ -850,9 +850,9 @@ def create_escalation_view(df):
     st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>🚨 Critical Escalations (Immediate Action Required)</h3>", unsafe_allow_html=True)
     critical_escalations = escalation_df[escalation_df['sentiment_score'] < -0.7].head(10) # Show top 10
     if not critical_escalations.empty:
-        display_cols = ['timestamp', 'feedback', 'rating', 'sentiment_score', 'escalated_flag']
+        display_cols = ['timestamp_', 'feedback', 'rating', 'sentiment_score', 'escalated_flag']
         available_cols = [col for col in display_cols if col in critical_escalations.columns]
-        st.dataframe(critical_escalations[available_cols].sort_values('timestamp', ascending=False), use_container_width=True)
+        st.dataframe(critical_escalations[available_cols].sort_values('timestamp_', ascending=False), use_container_width=True)
     else:
         st.success("✅ No critical escalations found!")
 
@@ -966,19 +966,19 @@ def main_app():
             df = load_and_process_data(csv_file_path)
             
             # Apply global date filter
-            if 'timestamp' in df.columns and not df['timestamp'].isna().all():
-                df_filtered = df[(df['timestamp'].dt.date >= start_date) & 
-                                 (df['timestamp'].dt.date <= end_date)].copy()
+            if 'timestamp_' in df.columns and not df['timestamp_'].isna().all():
+                df_filtered = df[(df['timestamp_'].dt.date >= start_date) & 
+                                 (df['timestamp_'].dt.date <= end_date)].copy()
                 st.write(f"DEBUG: Records after Date Filter: {len(df_filtered)}") # Debugging statement
                 
                 if time_granularity == "Daily":
-                    df_filtered['time_period'] = df_filtered['timestamp'].dt.date
+                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.date
                 elif time_granularity == "Weekly":
-                    df_filtered['time_period'] = df_filtered['timestamp'].dt.to_period('W').astype(str)
+                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('W').astype(str)
                 elif time_granularity == "Monthly":
-                    df_filtered['time_period'] = df_filtered['timestamp'].dt.to_period('M').astype(str)
+                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('M').astype(str)
             else:
-                st.warning("Timestamp column not found or is empty. Date filtering and time trends will not be available.")
+                st.warning("timestamp_ column not found or is empty. Date filtering and time trends will not be available.")
                 df_filtered = df.copy() 
                 df_filtered['time_period'] = 'N/A' 
                 
@@ -1046,7 +1046,7 @@ def main_app():
         st.info("Please ensure your CSV file contains data.")
     except Exception as e:
         st.error(f"❌ An unexpected error occurred during data processing: {str(e)}")
-        st.info("Please verify your CSV file's format. It should contain columns like `feedback_id`, `timestam` (or `timestamp`), `source`, `user_id`, `rating`, `feedback`, `escalated_flag`, and `customer_type`.")
+        st.info("Please verify your CSV file's format. It should contain columns like `feedback_id`, `timestamp_` (or `timestamp_`), `source`, `user_id`, `rating`, `feedback`, `escalated_flag`, and `customer_type`.")
         
         with st.expander("🔍 Show Detailed Error Information"):
             st.write(f"Attempted to load data from: `{csv_file_path}`")
