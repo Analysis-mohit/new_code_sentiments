@@ -196,6 +196,8 @@ def load_and_process_data(file_path):
     Loads a CSV file from the given path and preprocesses the data.
     """
     df = pd.read_csv("feedbacks_1.csv")
+
+    df['timestamp_'] = df['timestamp_'].dt.date
     
     df.columns = df.columns.str.strip()
     
