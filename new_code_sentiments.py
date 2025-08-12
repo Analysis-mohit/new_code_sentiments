@@ -205,7 +205,7 @@ def load_and_process_data(file_path):
     
     df.columns = df.columns.str.strip()
     
-    if 'timestam' in df.columns:
+    if 'timestamp_' in df.columns:
         df['timestamp'] = pd.to_datetime(df['timestam'], errors='coerce')
     elif 'timestamp' in df.columns:
         df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
