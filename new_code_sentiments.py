@@ -973,13 +973,12 @@ def main_app():
             # Apply global date filter
 
             if 'timestamp_' in df.columns and pd.api.types.is_datetime64_any_dtype(df['timestamp_']):
-    df_filtered = df[(df['timestamp_'].dt.date >= start_date) & 
-                     (df['timestamp_'].dt.date <= end_date)].copy()
-else:
-    st.warning("timestamp_ column is not datetime. Skipping date filter.")
-    df_filtered = df.copy()
+                df_filtered = df[(df['timestamp_'].dt.date >= start_date) & (df['timestamp_'].dt.date <= end_date)].copy()
+            else:
+                st.warning("timestamp_ column is not datetime. Skipping date filter.")
+                df_filtered = df.copy()
                 
-                st.write(f"DEBUG: Records after Date Filter: {len(df_filtered)}") 
+            st.write(f"DEBUG: Records after Date Filter: {len(df_filtered)}") 
                 
                 
                 # Debugging statement
