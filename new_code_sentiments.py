@@ -197,7 +197,15 @@ def load_and_process_data(file_path):
     """
     df = pd.read_csv("feedbacks_1.csv")
 
-    df['timestamp_'] = df['timestamp_'].dt.date
+    if 'timestam' in df.columns:
+        df['timestamp_'] = pd.to_datetime(df['timestam'], errors='coerce')
+    elif 'timestamp_' in df.columns:
+        df['timestamp__'] = pd.to_datetime(df['timestamp_'], errors='coerce')
+    else:
+        st.warning("Neither 'timestam' nor 'timestamp_' column found. Time-series analysis will be limited.")
+        df['timestamp_'] = pd.NaT 
+
+   df['timestamp_'] = df['timestamp_'].dt.date
 
     cols_to_keep = [
     'feedback_id',
@@ -212,14 +220,7 @@ def load_and_process_data(file_path):
     df = df[cols_to_keep]
     
     df.columns = df.columns.str.strip()
-    
-    if 'timestam' in df.columns:
-        df['timestamp_'] = pd.to_datetime(df['timestam'], errors='coerce')
-    elif 'timestamp_' in df.columns:
-        df['timestamp__'] = pd.to_datetime(df['timestamp_'], errors='coerce')
-    else:
-        st.warning("Neither 'timestam' nor 'timestamp_' column found. Time-series analysis will be limited.")
-        df['timestamp_'] = pd.NaT 
+     
     
     df['feedback'] = df['feedback'].fillna('').astype(str)
     df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
