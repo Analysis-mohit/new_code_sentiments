@@ -195,16 +195,10 @@ def load_and_process_data(file_path):
     """
     Loads a CSV file from the given path and preprocesses the data.
     """
+    # In the load_and_process_data function, replace this section:
     df = pd.read_csv("feedbacks_1.csv")
 
-    if 'timestamp_' in df.columns:
-    
-    df['timestamp_'] = pd.to_datetime(df['timestamp_'], errors='coerce')
-    
-elif 'timestamp' in df.columns:
-    df['timestamp_'] = pd.to_datetime(df['timestamp'], errors='coerce')
-
-
+    df['timestamp_'] = df['timestamp_'].dt.date
 
     cols_to_keep = [
     'feedback_id',
@@ -218,6 +212,51 @@ elif 'timestamp' in df.columns:
 
     df = df[cols_to_keep]
     
+    df.columns = df.columns.str.strip()
+    
+    if 'timestam' in df.columns:
+        df['timestamp_'] = pd.to_datetime(df['timestam'], errors='coerce')
+    elif 'timestamp_' in df.columns:
+        df['timestamp__'] = pd.to_datetime(df['timestamp_'], errors='coerce')
+    else:
+        st.warning("Neither 'timestam' nor 'timestamp_' column found. Time-series analysis will be limited.")
+        df['timestamp_'] = pd.NaT 
+
+# Replace it with this corrected version:
+    df = pd.read_csv("feedbacks_1.csv")
+    
+    # Parse timestamp_ column as datetime
+    if 'timestamp_' in df.columns:
+        df['timestamp_'] = pd.to_datetime(df['timestamp_'], errors='coerce')
+    elif 'timestam' in df.columns:
+        df['timestamp_'] = pd.to_datetime(df['timestam'], errors='coerce')
+    
+    # Select only needed columns
+    cols_to_keep = [
+        'feedback_id',
+        'timestamp_',
+        'source',
+        'user_id',
+        'rating',
+        'feedback',
+        'escalated_flag',
+        'customer_type'
+    ]
+    
+    # Filter to keep only available columns
+    available_cols = [col for col in cols_to_keep if col in df.columns]
+    df = df[available_cols]
+    
+    # Handle any missing columns with defaults
+    if 'customer_type' not in df.columns:
+        st.warning("'customer_type' column not found. Defaulting to 'Consumer'.")
+        df['customer_type'] = 'Consumer'
+    
+    if 'escalated_flag' not in df.columns:
+        st.warning("'escalated_flag' column not found. Defaulting to False.")
+        df['escalated_flag'] = False
+    
+    # Clean column names
     df.columns = df.columns.str.strip()
      
     
