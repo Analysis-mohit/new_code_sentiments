@@ -983,7 +983,7 @@ def main_app():
                 
                 # Debugging statement
                 
-                if time_granularity == "Daily":
+            if time_granularity == "Daily":
                     df_filtered['time_period'] = df_filtered['timestamp_'].dt.date
                 elif time_granularity == "Weekly":
                     df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('W').astype(str)
