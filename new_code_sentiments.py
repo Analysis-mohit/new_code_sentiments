@@ -858,50 +858,63 @@ def create_escalation_view(df):
     else:
         st.success("✅ No critical escalations found!")
 
-def create_raw_feedback_and_wordcloud(df):
-    st.markdown("<h2 style='text-align:center;'>📝 Raw Feedback & Word Cloud</h2>", unsafe_allow_html=True)
+# ==============================
+# Raw Feedback + WordCloud View
+# ==============================
+def render_raw_feedback_and_wordcloud(df):
+    st.subheader("📝 Raw Feedbacks")
 
-    col1, col2 = st.columns([2, 1])
-
+    col1, col2, col3 = st.columns(3)
     with col1:
-        st.subheader("📋 Raw Feedback Table (Filterable)")
-        gb = GridOptionsBuilder.from_dataframe(df)
-        gb.configure_pagination(paginationAutoPageSize=False, paginationPageSize=10)
-        gb.configure_default_column(filter=True, sortable=True, resizable=True)
-        gb.configure_side_bar()
-        grid_options = gb.build()
-        AgGrid(df, gridOptions=grid_options, enable_enterprise_modules=True,
-               update_mode=GridUpdateMode.NO_UPDATE, theme='balham')
-
+        selected_source = st.multiselect(
+            "Filter by Source",
+            options=sorted(df['source'].dropna().unique()),
+            default=sorted(df['source'].dropna().unique())
+        )
     with col2:
-        st.subheader("☁️ Word Cloud")
-        sentiment_choice = st.radio("Filter by Sentiment", options=['All', 'Positive', 'Negative', 'Neutral'], horizontal=True)
+        selected_customer_type = st.multiselect(
+            "Filter by Customer Type",
+            options=sorted(df['customer_type'].dropna().unique()),
+            default=sorted(df['customer_type'].dropna().unique())
+        )
+    with col3:
+        selected_rating = st.multiselect(
+            "Filter by Rating",
+            options=sorted(df['rating'].dropna().unique()),
+            default=sorted(df['rating'].dropna().unique())
+        )
 
-        if sentiment_choice != 'All' and 'predicted_sentiment' in df.columns:
-            filtered_df = df[df['predicted_sentiment'] == sentiment_choice]
-        else:
-            filtered_df = df.copy()
+    df_filtered = df[
+        df['source'].isin(selected_source) &
+        df['customer_type'].isin(selected_customer_type) &
+        df['rating'].isin(selected_rating)
+    ]
 
-        # Fallback if no feedback column present
-        if 'feedback' not in filtered_df.columns or filtered_df['feedback'].dropna().empty:
-            st.info("No feedback text available to generate a word cloud.")
-            return
+    st.dataframe(df_filtered, use_container_width=True, height=500)
 
-        text_data = ' '.join(filtered_df['feedback'].dropna().astype(str).tolist())
-        words = word_tokenize(text_data.lower())
-        words = [w for w in words if w.isalpha() and w not in stopwords.words('english')]
+    st.subheader("☁️ Word Cloud (Based on Above Filtered Feedbacks)")
+    text_series = df_filtered['feedback'].dropna().astype(str)
+    text = " ".join(text_series)
 
-        # Count words (deduplicated naturally via Counter keys)
-        word_counts = Counter(words)
+    if not text.strip():
+        st.warning("No feedback text available for the current filters.")
+        return
 
-        wc = WordCloud(width=1200, height=800, background_color='white', colormap='tab20',
-                       max_words=100).generate_from_frequencies(word_counts)
+    custom_stopwords = set(STOPWORDS)
+    custom_stopwords.update(["customer", "feedback"])
 
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.imshow(wc, interpolation='bilinear')
-        ax.axis('off')
-        st.pyplot(fig)
+    wordcloud = WordCloud(
+        width=800,
+        height=400,
+        background_color='white',
+        stopwords=custom_stopwords,
+        collocations=False
+    ).generate(text)
 
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.imshow(wordcloud, interpolation='bilinear')
+    ax.axis('off')
+    st.pyplot(fig)
 
 # Add this function to your main_app() function as a new page option
 def add_metrics_view_to_main_app():
@@ -936,73 +949,69 @@ def add_metrics_view_to_main_app():
 
 # --- Main App Logic ---
 def main_app():
+    st.set_page_config(page_title="PulsePoint - Voice of the Customer", layout="wide")
     st.markdown('<h1 class="main-header">📊 PulsePoint - Voice of the Customer</h1>', unsafe_allow_html=True)
 
-    csv_file_path = "new_feedbacks.csv" 
-    customer_types_for_filter = ['All', 'Consigner', 'Operator']
+    # File path
+    csv_file_path = "new_feedbacks.csv"
 
+    # Sidebar Filters
     with st.sidebar:
         st.header("⚙️ Configuration")
         st.info(f"Data Source: `{csv_file_path}`")
-        sentiment_method = st.selectbox("🧠 Sentiment Analysis Method", ["TextBlob"], key="global_sentiment_method")
-        st.markdown("---")
-        st.header("🗓️ Date & Time Filters")
+
         today = datetime.now().date()
-        default_start_date = today - timedelta(days=365)
-        start_date = st.date_input("Start Date", value=default_start_date, key="global_start_date")
-        end_date = st.date_input("End Date", value=today, key="global_end_date")
-        time_granularity = st.selectbox("Time Granularity", ["Daily", "Weekly", "Monthly"], key="global_time_granularity")
-        st.markdown("---")
-        selected_customer_type = st.selectbox("👥 Select Customer Type", customer_types_for_filter, key="global_customer_type_filter")
-        st.markdown("---")
-        st.header("📊 Dashboard Views")
-        page_selection = st.radio("Explore Data By:", ["📈 Overview", "📱 PlayStore Feedback", "🚗 Trip Feedback", "🚨 Escalations", "📝 Raw Feedback & Word Cloud"], key="page_selection")
-        st.markdown("---")
-        if st.button("🔄 Refresh Analysis", key="global_refresh_button"):
-            st.cache_data.clear()
-            st.rerun()
+        start_date = st.date_input("Start Date", value=today - timedelta(days=365))
+        end_date = st.date_input("End Date", value=today)
+
+        time_granularity = st.selectbox("Time Granularity", ["Daily", "Weekly", "Monthly"])
+        selected_customer_type = st.selectbox("👥 Select Customer Type", ['All', 'Consigner', 'Operator'])
+
+        page_selection = st.radio(
+            "Explore Data By:",
+            ["📈 Overview", "📱 PlayStore Feedback", "🚗 Trip Feedback", "🚨 Escalations", "📝 Raw Feedback & Word Cloud"]
+        )
 
     try:
-        with st.spinner(f"📊 Loading and processing your data from {csv_file_path}..."):
-            df = load_and_process_data(csv_file_path)
-            if 'timestamp_' in df.columns and not df['timestamp_'].isna().all():
-                df_filtered = df[(df['timestamp_'].dt.date >= start_date) & (df['timestamp_'].dt.date <= end_date)].copy()
-                if time_granularity == "Daily":
-                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.date
-                elif time_granularity == "Weekly":
-                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('W').astype(str)
-                elif time_granularity == "Monthly":
-                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('M').astype(str)
-            else:
-                df_filtered = df.copy() 
-                df_filtered['time_period'] = 'N/A'
+        with st.spinner("📊 Loading data..."):
+            df = load_data(csv_file_path)
 
-            df_processed_all = perform_sentiment_analysis(df_filtered, method=sentiment_method)
-            df_processed_all = create_sentiment_buckets(df_processed_all)
+        # Filter by date early (filter-first optimization)
+        if 'timestamp_' in df.columns:
+            df = df[
+                (df['timestamp_'].dt.date >= start_date) &
+                (df['timestamp_'].dt.date <= end_date)
+            ]
 
-            if selected_customer_type != 'All':
-                df_to_display = df_processed_all[df_processed_all['customer_type'] == selected_customer_type].copy()
-            else:
-                df_to_display = df_processed_all.copy()
+        # Filter by customer type early
+        if selected_customer_type != 'All':
+            df = df[df['customer_type'] == selected_customer_type]
 
-        if df_to_display.empty:
+        # Only run sentiment analysis for pages that need it
+        if page_selection != "📝 Raw Feedback & Word Cloud":
+            df = perform_sentiment_analysis(df)
+            df = create_sentiment_buckets(df)
+
+        if df.empty:
             st.error("No data available after applying filters.")
             return
-        else:
-            if page_selection == "📈 Overview":
-                create_overview_dashboard(df_to_display)
-            elif page_selection == "📱 PlayStore Feedback":
-                create_playstore_view(df_to_display)
-            elif page_selection == "🚗 Trip Feedback":
-                create_trip_feedback_view(df_to_display)
-            elif page_selection == "🚨 Escalations":
-                escalation_df_filtered_source = df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)].copy()
-                create_escalation_view(escalation_df_filtered_source)
-            elif page_selection == "📝 Raw Feedback & Word Cloud":
-                create_raw_feedback_and_wordcloud(df_to_display)
 
+        # Page rendering
+        if page_selection == "📝 Raw Feedback & Word Cloud":
+            render_raw_feedback_and_wordcloud(df)
+        elif page_selection == "📈 Overview":
+            st.write("📈 Overview dashboard goes here")
+        elif page_selection == "📱 PlayStore Feedback":
+            st.write("📱 PlayStore view goes here")
+        elif page_selection == "🚗 Trip Feedback":
+            st.write("🚗 Trip feedback view goes here")
+        elif page_selection == "🚨 Escalations":
+            st.write("🚨 Escalations view goes here")
+
+    except FileNotFoundError:
+        st.error(f"❌ File not found: `{csv_file_path}`")
     except Exception as e:
-        st.error(f"Error: {str(e)}")
+        st.error(f"❌ Unexpected error: {str(e)}")
 
 if __name__ == "__main__":
     main_app()
