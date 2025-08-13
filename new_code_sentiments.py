@@ -21,6 +21,8 @@ import base64
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from st_aggrid import AgGrid, GridOptionsBuilder, GridUpdateMode
+
 
 # Download NLTK stopwords if not already downloaded
 try:
