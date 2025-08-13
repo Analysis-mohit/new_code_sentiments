@@ -934,56 +934,73 @@ def add_metrics_view_to_main_app():
 
 # --- Main App Logic ---
 def main_app():
-    st.set_page_config(page_title="📊 PulsePoint - Voice of the Customer", layout="wide")
     st.markdown('<h1 class="main-header">📊 PulsePoint - Voice of the Customer</h1>', unsafe_allow_html=True)
 
-    csv_file_path = "new_feedbacks.csv"
+    csv_file_path = "new_feedbacks.csv" 
     customer_types_for_filter = ['All', 'Consigner', 'Operator']
 
     with st.sidebar:
         st.header("⚙️ Configuration")
+        st.info(f"Data Source: `{csv_file_path}`")
         sentiment_method = st.selectbox("🧠 Sentiment Analysis Method", ["TextBlob"], key="global_sentiment_method")
         st.markdown("---")
         st.header("🗓️ Date & Time Filters")
         today = datetime.now().date()
         default_start_date = today - timedelta(days=365)
-        start_date = st.date_input("Start Date", value=default_start_date)
-        end_date = st.date_input("End Date", value=today)
-        time_granularity = st.selectbox("Time Granularity", ["Daily", "Weekly", "Monthly"])
+        start_date = st.date_input("Start Date", value=default_start_date, key="global_start_date")
+        end_date = st.date_input("End Date", value=today, key="global_end_date")
+        time_granularity = st.selectbox("Time Granularity", ["Daily", "Weekly", "Monthly"], key="global_time_granularity")
         st.markdown("---")
-        selected_customer_type = st.selectbox("👥 Select Customer Type", customer_types_for_filter)
+        selected_customer_type = st.selectbox("👥 Select Customer Type", customer_types_for_filter, key="global_customer_type_filter")
         st.markdown("---")
-        page_selection = st.radio("Explore Data By:",
-                                  ["📈 Overview", "📱 PlayStore Feedback", "🚗 Trip Feedback", "🚨 Escalations", "📝 Raw Feedback & Word Cloud"],
-                                  key="page_selection")
+        st.header("📊 Dashboard Views")
+        page_selection = st.radio("Explore Data By:", ["📈 Overview", "📱 PlayStore Feedback", "🚗 Trip Feedback", "🚨 Escalations", "📝 Raw Feedback & Word Cloud"], key="page_selection")
+        st.markdown("---")
+        if st.button("🔄 Refresh Analysis", key="global_refresh_button"):
+            st.cache_data.clear()
+            st.rerun()
 
     try:
-        df = pd.read_csv(csv_file_path)
-        if 'timestamp_' in df.columns:
-            df['timestamp_'] = pd.to_datetime(df['timestamp_'], errors='coerce')
-        df = df[(df['timestamp_'].dt.date >= start_date) & (df['timestamp_'].dt.date <= end_date)]
-        if selected_customer_type != 'All' and 'customer_type' in df.columns:
-            df = df[df['customer_type'] == selected_customer_type]
+        with st.spinner(f"📊 Loading and processing your data from {csv_file_path}..."):
+            df = load_and_process_data(csv_file_path)
+            if 'timestamp_' in df.columns and not df['timestamp_'].isna().all():
+                df_filtered = df[(df['timestamp_'].dt.date >= start_date) & (df['timestamp_'].dt.date <= end_date)].copy()
+                if time_granularity == "Daily":
+                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.date
+                elif time_granularity == "Weekly":
+                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('W').astype(str)
+                elif time_granularity == "Monthly":
+                    df_filtered['time_period'] = df_filtered['timestamp_'].dt.to_period('M').astype(str)
+            else:
+                df_filtered = df.copy() 
+                df_filtered['time_period'] = 'N/A'
 
-        if 'feedback' in df.columns:
-            df['sentiment_score'] = df['feedback'].apply(lambda x: TextBlob(str(x)).sentiment.polarity)
-            df['predicted_sentiment'] = pd.cut(df['sentiment_score'],
-                                               bins=[-1, -0.1, 0.1, 1],
-                                               labels=['Negative', 'Neutral', 'Positive'])
+            df_processed_all = perform_sentiment_analysis(df_filtered, method=sentiment_method)
+            df_processed_all = create_sentiment_buckets(df_processed_all)
 
-        if page_selection == "📝 Raw Feedback & Word Cloud":
-            create_raw_feedback_and_wordcloud(df)
-        elif page_selection == "📈 Overview":
-            st.success("📈 Overview page logic here (original code)")
-        elif page_selection == "📱 PlayStore Feedback":
-            st.success("📱 PlayStore Feedback page logic here (original code)")
-        elif page_selection == "🚗 Trip Feedback":
-            st.success("🚗 Trip Feedback page logic here (original code)")
-        elif page_selection == "🚨 Escalations":
-            st.success("🚨 Escalations page logic here (original code)")
+            if selected_customer_type != 'All':
+                df_to_display = df_processed_all[df_processed_all['customer_type'] == selected_customer_type].copy()
+            else:
+                df_to_display = df_processed_all.copy()
 
-    except FileNotFoundError:
-        st.error(f"❌ File not found: {csv_file_path}")
+        if df_to_display.empty:
+            st.error("No data available after applying filters.")
+            return
+        else:
+            if page_selection == "📈 Overview":
+                create_overview_dashboard(df_to_display)
+            elif page_selection == "📱 PlayStore Feedback":
+                create_playstore_view(df_to_display)
+            elif page_selection == "🚗 Trip Feedback":
+                create_trip_feedback_view(df_to_display)
+            elif page_selection == "🚨 Escalations":
+                escalation_df_filtered_source = df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)].copy()
+                create_escalation_view(escalation_df_filtered_source)
+            elif page_selection == "📝 Raw Feedback & Word Cloud":
+                create_raw_feedback_and_wordcloud(df_to_display)
+
+    except Exception as e:
+        st.error(f"Error: {str(e)}")
 
 if __name__ == "__main__":
     main_app()
