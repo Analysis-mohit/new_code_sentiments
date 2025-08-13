@@ -974,7 +974,7 @@ def main_app():
 
     try:
         with st.spinner("📊 Loading data..."):
-            df = load_data(csv_file_path)
+            df = load_and_process_data(csv_file_path)
 
         # Filter by date early (filter-first optimization)
         if 'timestamp_' in df.columns:
