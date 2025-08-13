@@ -894,10 +894,10 @@ def create_raw_feedback_and_wordcloud(df):
         # Count words (deduplicated naturally via Counter keys)
         word_counts = Counter(words)
 
-        wc = WordCloud(width=600, height=400, background_color='white', colormap='tab20',
+        wc = WordCloud(width=1200, height=800, background_color='white', colormap='tab20',
                        max_words=100).generate_from_frequencies(word_counts)
 
-        fig, ax = plt.subplots(figsize=(6, 4))
+        fig, ax = plt.subplots(figsize=(10, 8))
         ax.imshow(wc, interpolation='bilinear')
         ax.axis('off')
         st.pyplot(fig)
