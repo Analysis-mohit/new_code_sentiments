@@ -205,10 +205,10 @@ def load_and_process_data(file_path):
     
     df.columns = df.columns.str.strip()
     
-    if 'timestamp_' in df.columns:
-        df['timestamp'] = pd.to_datetime(df['timestam'], errors='coerce')
+    if 'timestam' in df.columns:
+        df['timestamp_'] = pd.to_datetime(df['timestam'], errors='coerce')
     elif 'timestamp' in df.columns:
-        df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        df['timestamp_'] = pd.to_datetime(df['timestamp'], errors='coerce')
     else:
         st.warning("Neither 'timestam' nor 'timestamp' column found. Time-series analysis will be limited.")
         df['timestamp'] = pd.NaT 
