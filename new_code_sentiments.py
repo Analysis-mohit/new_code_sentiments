@@ -283,7 +283,7 @@ def load_and_process_data(file_path):
     """
     Loads a CSV file from the given path and preprocesses the data.
     """
-    df = pd.read_csv("sentiment_data_25aug2 - Sheet1 (1).csv")
+    df = pd.read_csv("sentiment_25aug_.csv")
     
     
     df.columns = df.columns.str.strip()
