@@ -894,7 +894,7 @@ def main_app():
     st.markdown('<h1 class="main-header">📊 PulsePoint - Voice of the Customer</h1>', unsafe_allow_html=True)
     
     # --- Predefined File Path ---
-    csv_file_path = "data_sentiments.csv" 
+    csv_file_path = "sentiment_25aug.csv" 
     # --- End Predefined File Path ---
 
     # Static list for customer types to ensure only Consigner/Operator are explicitly shown
