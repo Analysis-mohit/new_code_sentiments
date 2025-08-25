@@ -49,75 +49,157 @@ st.set_page_config(
 # Apply custom CSS for enhanced visual styling
 st.markdown("""
 <style>
+    /* Import Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    /* Global font styling */
+    html, body, [class*="css"] {
+        font-family: 'Inter', sans-serif;
+    }
+    
     /* Styling for the main header of the dashboard */
     .main-header {
-        font-size: 3rem;
-        font-weight: bold;
+        font-size: 3.5rem;
+        font-weight: 700;
         text-align: center;
-        background: linear-gradient(90deg, #FF6B6B, #4ECDC4, #45B7D1);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 2rem;
+        text-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
     
-    /* General styling for metric cards, providing a gradient background */
+    /* Enhanced metric cards with glassmorphism effect */
     .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 1rem;
-        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.18);
+        padding: 1.5rem;
+        border-radius: 20px;
         color: white;
         text-align: center;
         margin: 0.5rem 0;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+        transition: all 0.3s ease;
+        background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
     
-    /* Specific styling for positive sentiment cards */
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.5);
+    }
+    
+    /* Enhanced sentiment cards */
     .sentiment-positive {
         background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        box-shadow: 0 8px 32px rgba(17, 153, 142, 0.3);
     }
     
-    /* Specific styling for negative sentiment cards */
     .sentiment-negative {
         background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+        box-shadow: 0 8px 32px rgba(255, 65, 108, 0.3);
     }
     
-    /* Specific styling for neutral sentiment cards */
     .sentiment-neutral {
         background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
         color: #333;
+        box-shadow: 0 8px 32px rgba(255, 236, 210, 0.3);
     }
     
-    /* Styling for Streamlit tabs list (not used in this version but kept for reference) */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 24px;
+    /* Enhanced section headers */
+    .section-header {
+        font-size: 2rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin: 2rem 0 1rem 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 3px solid;
+        border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
     }
     
-    /* Styling for individual Streamlit tabs (not used in this version but kept for reference) */
-    .stTabs [data-baseweb="tab"] {
-        height: 50px;
-        padding-left: 20px;
-        padding-right: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    /* Custom card container */
+    .custom-card {
+        background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+        border-radius: 15px;
+        padding: 2rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    /* Enhanced dataframe styling */
+    .dataframe {
         border-radius: 10px;
-        color: white;
-        font-weight: bold;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
-
-    /* Custom styles for Chart.js containers */
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+    }
+    
+    /* Button styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    /* Raw data section styling */
+    .raw-data-header {
+        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px 10px 0 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        text-align: center;
+    }
+    
+    .filter-container {
+        background: rgba(66, 153, 225, 0.05);
+        border: 1px solid rgba(66, 153, 225, 0.1);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    /* Animation keyframes */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .fade-in {
+        animation: fadeInUp 0.8s ease-out;
+    }
+    
+    /* Chart container styling */
     .chart-container {
         position: relative;
         width: 100%;
-        max-width: 700px; /* Limit chart width on large screens */
-        margin-left: auto;
-        margin-right: auto;
-        height: 350px; /* Default height */
-        max-height: 450px; /* Max height for responsiveness */
-    }
-    /* Adjust chart container height for smaller screens */
-    @media (max-width: 768px) {
-        .chart-container {
-            height: 300px;
-            max-height: 350px;
-        }
+        margin: 1rem 0;
+        padding: 1rem;
+        background: rgba(255,255,255,0.8);
+        border-radius: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -201,16 +283,24 @@ def load_and_process_data(file_path):
     """
     Loads a CSV file from the given path and preprocesses the data.
     """
-    df = pd.read_csv("new_feedbacks.csv")
+    df = pd.read_csv(file_path)
     
     df.columns = df.columns.str.strip()
     
-    if 'timestam' in df.columns:
-        df['timestamp_'] = pd.to_datetime(df['timestam'], errors='coerce')
-    elif 'timestamp' in df.columns:
-        df['timestamp_'] = pd.to_datetime(df['timestamp'], errors='coerce')
+    # Enhanced timestamp column detection - now includes 'timestamp_'
+    timestamp_columns = ['timestamp_', 'timestam', 'timestamp', 'date', 'created_at', 'datetime']
+    timestamp_col = None
+    
+    for col in timestamp_columns:
+        if col in df.columns:
+            timestamp_col = col
+            break
+    
+    if timestamp_col:
+        df['timestamp'] = pd.to_datetime(df[timestamp_col], errors='coerce')
+        st.success(f"✅ Found timestamp column: '{timestamp_col}' - Time filtering enabled!")
     else:
-        st.warning("Neither 'timestam' nor 'timestamp' column found. Time-series analysis will be limited.")
+        st.warning("No timestamp column found. Time-series analysis will be limited.")
         df['timestamp'] = pd.NaT 
     
     df['feedback'] = df['feedback'].fillna('').astype(str)
@@ -491,8 +581,8 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
     """
     Helper function to generate common sections for different views.
     """
-    st.markdown(f'<h2 class="text-2xl md:text-3xl font-semibold text-slate-800 text-center mb-6">{view_title}</h2>', unsafe_allow_html=True)
-    st.markdown(f"<p class='text-slate-600 text-center mb-8'>{description}</p>", unsafe_allow_html=True)
+    st.markdown(f'<div class="section-header fade-in">{view_title}</div>', unsafe_allow_html=True)
+    st.markdown(f"<p class='text-slate-600 text-center mb-8 fade-in'>{description}</p>", unsafe_allow_html=True)
 
     if df.empty:
         st.warning("No data available for the selected filters. Please adjust your date range or check the data source.")
@@ -507,7 +597,7 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
     
     with col1:
         st.markdown(f"""
-        <div class="metric-card">
+        <div class="metric-card fade-in">
             <h3>📊 Total Feedback</h3>
             <h2>{total_feedback:,}</h2>
         </div>
@@ -515,7 +605,7 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
     
     with col2:
         st.markdown(f"""
-        <div class="metric-card">
+        <div class="metric-card fade-in">
             <h3>⭐ Avg Rating</h3>
             <h2>{avg_rating:.1f}/5</h2>
         </div>
@@ -523,7 +613,7 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
     
     with col3:
         st.markdown(f"""
-        <div class="metric-card">
+        <div class="metric-card fade-in">
             <h3>🚨 Escalated</h3>
             <h2>{escalated_count}</h2>
         </div>
@@ -532,7 +622,7 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
     with col4:
         dominant_sentiment = sentiment_dist.index[0] if not sentiment_dist.empty else "Unknown"
         st.markdown(f"""
-        <div class="metric-card">
+        <div class="metric-card fade-in">
             <h3>🎯 Dominant Sentiment</h3>
             <h2>{dominant_sentiment}</h2>
         </div>
@@ -540,7 +630,7 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
     
     st.markdown("---")
     
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>Sentiment Distribution & Trends</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Sentiment Distribution & Trends</div>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     
     with col1:
@@ -581,7 +671,7 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
     st.markdown("---")
 
     if include_wordclouds:
-        st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>📝 Common Issues & What Customers Love</h3>", unsafe_allow_html=True)
+        st.markdown("<div class='section-header'>📝 Common Issues & What Customers Love</div>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         
         # Define custom stop words, including general terms that don't add much value to word clouds
@@ -637,7 +727,7 @@ def create_common_sections(df, view_title, description, include_wordclouds=True)
         st.markdown("---")
 
 
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>🎯 Top 10 Problems Faced by Users</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>🎯 Top 10 Problems Faced by Users</div>", unsafe_allow_html=True)
     top_problems_df = get_top_n_ngrams_from_negative_feedback(df)
     if not top_problems_df.empty:
         st.dataframe(top_problems_df.style.format({"Distribution (%)": "{:.1f}%"}), use_container_width=True)
@@ -658,7 +748,7 @@ def create_overview_dashboard(df):
     
     st.markdown("---")
     # --- Super User Analysis Section ---
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>🎉 User Segmentation: Happy vs. Sad Users 😞</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>🎉 User Segmentation: Happy vs. Sad Users 😞</div>", unsafe_allow_html=True)
     user_counts, user_df = identify_super_users(df)
     
     if user_df.empty or df['user_id'].nunique() <= 1:
@@ -667,21 +757,21 @@ def create_overview_dashboard(df):
         user_col1, user_col2, user_col3 = st.columns(3)
         with user_col1:
             st.markdown(f"""
-            <div class="metric-card sentiment-positive">
+            <div class="metric-card sentiment-positive fade-in">
                 <h3>Super Happy Users</h3>
                 <h2>{user_counts.get('Super Happy', 0):,}</h2>
             </div>
             """, unsafe_allow_html=True)
         with user_col2:
             st.markdown(f"""
-            <div class="metric-card sentiment-neutral">
+            <div class="metric-card sentiment-neutral fade-in">
                 <h3>Normal Users</h3>
                 <h2>{user_counts.get('Normal', 0):,}</h2>
             </div>
             """, unsafe_allow_html=True)
         with user_col3:
             st.markdown(f"""
-            <div class="metric-card sentiment-negative">
+            <div class="metric-card sentiment-negative fade-in">
                 <h3>Super Sad Users</h3>
                 <h2>{user_counts.get('Super Sad', 0):,}</h2>
             </div>
@@ -706,7 +796,7 @@ def create_overview_dashboard(df):
             
     st.markdown("---") # Separator after super user analysis
     
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>Sentiment by Source</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Sentiment by Source</div>", unsafe_allow_html=True)
     source_sentiment = pd.crosstab(df['source'], df['predicted_sentiment']).reset_index()
     source_sentiment_melted = source_sentiment.melt(id_vars='source', var_name='sentiment', value_name='count')
 
@@ -731,7 +821,7 @@ def create_playstore_view(df):
         return # Common sections will handle the warning
 
     st.markdown("---")
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>Rating Distribution</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Rating Distribution</div>", unsafe_allow_html=True)
     if not playstore_df['rating'].isna().all():
         rating_dist = playstore_df['rating'].value_counts().sort_index()
         rating_df = rating_dist.reset_index()
@@ -748,7 +838,7 @@ def create_playstore_view(df):
         st.info("No rating data available for PlayStore reviews.")
     
     st.markdown("---")
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>🔍 Recent Negative PlayStore Feedback (Action Required)</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>🔍 Recent Negative PlayStore Feedback (Action Required)</div>", unsafe_allow_html=True)
     negative_ps = playstore_df[playstore_df['predicted_sentiment'] == 'Negative'].head(10) # Show top 10
     if not negative_ps.empty:
         display_cols = ['timestamp', 'feedback', 'rating', 'sentiment_score', 'escalated_flag']
@@ -770,7 +860,7 @@ def create_trip_feedback_view(df):
         return # Common sections will handle the warning
     
     st.markdown("---")
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>Rating Correlation</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Rating Correlation</div>", unsafe_allow_html=True)
     if not trip_df['rating'].isna().all():
         trip_corr = trip_df.groupby('rating')['sentiment_score'].mean().reset_index()
         fig_corr = px.line(trip_corr,
@@ -795,7 +885,7 @@ def create_escalation_view(df):
         return # Common sections will handle the warning
     
     st.markdown("---")
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>Severity Distribution & Trend</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Severity Distribution & Trend</div>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     
     with col1:
@@ -847,7 +937,7 @@ def create_escalation_view(df):
             st.info("Insufficient data points or 'time_period' not available for Escalation trends.")
     
     st.markdown("---")
-    st.markdown("<h3 class='text-xl md:text-2xl font-semibold text-slate-700 mb-4'>🚨 Critical Escalations (Immediate Action Required)</h3>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>🚨 Critical Escalations (Immediate Action Required)</div>", unsafe_allow_html=True)
     critical_escalations = escalation_df[escalation_df['sentiment_score'] < -0.7].head(10) # Show top 10
     if not critical_escalations.empty:
         display_cols = ['timestamp', 'feedback', 'rating', 'sentiment_score', 'escalated_flag']
@@ -857,41 +947,224 @@ def create_escalation_view(df):
         st.success("✅ No critical escalations found!")
 
 
-# Add this function to your main_app() function as a new page option
-def add_metrics_view_to_main_app():
+def create_raw_data_view(df):
     """
-    Instructions to add the metrics view to your main application:
-    
-    1. In the sidebar radio button options, add:
-       "📊 Consigner Metrics (Mar-Jun vs Jul)"
-    
-    2. In the main page rendering section, add:
-       elif page_selection == "📊 Consigner Metrics (Mar-Jun vs Jul)":
-           create_metrics_comparison_view(df_to_display)
-    
-    3. Update the radio button options to include this new view
+    Creates a comprehensive raw data view with advanced filtering capabilities.
     """
-    pass
-
-# # Example integration code for your main app:
-# """
-# # In your sidebar section, update the radio button:
-# page_selection = st.radio(
-#     "Explore Data By:",
-#     ["📈 Overview", "📱 PlayStore Feedback", "🚗 Trip Feedback", "🚨 Escalations", "📊 Consigner Metrics"],
-#     key="page_selection"
-# )
-
-# # In your main rendering section, add:
-# elif page_selection == "📊 Consigner Metrics":
-#     create_metrics_comparison_view(df_to_display)
-# """
+    st.markdown('<div class="raw-data-header fade-in">🔍 Raw Data Explorer</div>', unsafe_allow_html=True)
+    st.markdown("<p class='text-center text-gray-600 mb-6'>Explore and filter your feedback data with advanced search capabilities</p>", unsafe_allow_html=True)
+    
+    # Advanced Filters
+    with st.container():
+        st.markdown('<div class="filter-container">', unsafe_allow_html=True)
+        st.markdown("### 🎛️ Advanced Filters")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            # Source filter
+            sources = ['All'] + list(df['source'].unique()) if 'source' in df.columns else ['All']
+            selected_source = st.selectbox("📱 Source", sources, key="raw_source_filter")
+        
+        with col2:
+            # Sentiment filter
+            sentiments = ['All'] + list(df['predicted_sentiment'].unique()) if 'predicted_sentiment' in df.columns else ['All']
+            selected_sentiment = st.selectbox("😊 Sentiment", sentiments, key="raw_sentiment_filter")
+        
+        with col3:
+            # Rating filter
+            if 'rating' in df.columns and not df['rating'].isna().all():
+                rating_options = ['All'] + sorted(df['rating'].dropna().unique().astype(int).tolist())
+                selected_rating = st.selectbox("⭐ Rating", rating_options, key="raw_rating_filter")
+            else:
+                selected_rating = 'All'
+        
+        with col4:
+            # Escalated filter
+            escalated_options = ['All', 'True', 'False']
+            selected_escalated = st.selectbox("🚨 Escalated", escalated_options, key="raw_escalated_filter")
+        
+        # Text search
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            search_text = st.text_input("🔍 Search in feedback text", placeholder="Enter keywords to search...", key="raw_search_text")
+        
+        with col2:
+            st.markdown("<br>", unsafe_allow_html=True)  # Add spacing
+            search_button = st.button("🔍 Search", key="raw_search_button")
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Apply filters
+    filtered_df = df.copy()
+    
+    if selected_source != 'All':
+        filtered_df = filtered_df[filtered_df['source'] == selected_source]
+    
+    if selected_sentiment != 'All':
+        filtered_df = filtered_df[filtered_df['predicted_sentiment'] == selected_sentiment]
+    
+    if selected_rating != 'All':
+        filtered_df = filtered_df[filtered_df['rating'] == selected_rating]
+    
+    if selected_escalated != 'All':
+        escalated_bool = selected_escalated == 'True'
+        filtered_df = filtered_df[filtered_df['escalated_flag'] == escalated_bool]
+    
+    if search_text:
+        filtered_df = filtered_df[filtered_df['feedback'].str.contains(search_text, case=False, na=False)]
+    
+    # Display results summary
+    st.markdown("---")
+    col1, col2, col3, col4 = st.columns(4)
+    
+    total_records = len(filtered_df)
+    positive_count = len(filtered_df[filtered_df['predicted_sentiment'] == 'Positive']) if 'predicted_sentiment' in filtered_df.columns else 0
+    negative_count = len(filtered_df[filtered_df['predicted_sentiment'] == 'Negative']) if 'predicted_sentiment' in filtered_df.columns else 0
+    avg_rating = filtered_df['rating'].mean() if 'rating' in filtered_df.columns and not filtered_df['rating'].isna().all() else 0
+    
+    with col1:
+        st.metric("📊 Total Records", f"{total_records:,}")
+    
+    with col2:
+        st.metric("😊 Positive", f"{positive_count:,}")
+    
+    with col3:
+        st.metric("😞 Negative", f"{negative_count:,}")
+    
+    with col4:
+        st.metric("⭐ Avg Rating", f"{avg_rating:.1f}" if avg_rating > 0 else "N/A")
+    
+    st.markdown("---")
+    
+    # Display options
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        st.markdown("### 📋 Filtered Results")
+    
+    with col2:
+        # Records per page
+        records_per_page = st.selectbox("Records per page", [10, 25, 50, 100, 500], index=1, key="raw_records_per_page")
+    
+    with col3:
+        # Download button
+        if not filtered_df.empty:
+            csv = filtered_df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="⬇️ Download CSV",
+                data=csv,
+                file_name=f"filtered_feedback_data_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                mime="text/csv"
+            )
+    
+    # Pagination
+    if not filtered_df.empty:
+        total_pages = max(1, (len(filtered_df) - 1) // records_per_page + 1)
+        
+        if total_pages > 1:
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                page_number = st.selectbox(
+                    f"Page (1-{total_pages})", 
+                    range(1, total_pages + 1), 
+                    key="raw_page_number"
+                )
+        else:
+            page_number = 1
+        
+        # Calculate start and end indices
+        start_idx = (page_number - 1) * records_per_page
+        end_idx = min(start_idx + records_per_page, len(filtered_df))
+        
+        # Display data
+        display_df = filtered_df.iloc[start_idx:end_idx].copy()
+        
+        # Format timestamp for better display
+        if 'timestamp' in display_df.columns:
+            display_df['timestamp'] = pd.to_datetime(display_df['timestamp']).dt.strftime('%Y-%m-%d %H:%M')
+        
+        # Select columns to display
+        display_columns = []
+        available_columns = display_df.columns.tolist()
+        
+        # Prioritize important columns
+        priority_columns = ['timestamp', 'feedback', 'rating', 'predicted_sentiment', 'sentiment_score', 'source', 'escalated_flag', 'customer_type', 'user_id']
+        
+        for col in priority_columns:
+            if col in available_columns:
+                display_columns.append(col)
+        
+        # Add remaining columns
+        for col in available_columns:
+            if col not in display_columns:
+                display_columns.append(col)
+        
+        # Display the dataframe with custom styling
+        st.dataframe(
+            display_df[display_columns],
+            use_container_width=True,
+            height=600
+        )
+        
+        # Show pagination info
+        st.caption(f"Showing records {start_idx + 1}-{end_idx} of {len(filtered_df)} total records")
+        
+    else:
+        st.warning("No records found matching your filter criteria. Please adjust your filters and try again.")
+    
+    # Quick insights
+    if not filtered_df.empty and len(filtered_df) >= 10:
+        st.markdown("---")
+        st.markdown("<div class='section-header'>📈 Quick Insights from Filtered Data</div>", unsafe_allow_html=True)
+        
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            # Sentiment distribution chart
+            if 'predicted_sentiment' in filtered_df.columns:
+                sentiment_counts = filtered_df['predicted_sentiment'].value_counts()
+                fig_sentiment = px.pie(
+                    values=sentiment_counts.values,
+                    names=sentiment_counts.index,
+                    title="Sentiment Distribution (Filtered Data)",
+                    color=sentiment_counts.index,
+                    color_discrete_map=GLOBAL_SENTIMENT_COLOR_MAP_GENERAL
+                )
+                fig_sentiment.update_traces(textposition='inside', textinfo='percent+label')
+                st.plotly_chart(fig_sentiment, use_container_width=True)
+        
+        with col2:
+            # Rating distribution chart (if available)
+            if 'rating' in filtered_df.columns and not filtered_df['rating'].isna().all():
+                rating_counts = filtered_df['rating'].value_counts().sort_index()
+                fig_rating = px.bar(
+                    x=rating_counts.index,
+                    y=rating_counts.values,
+                    title="Rating Distribution (Filtered Data)",
+                    labels={'x': 'Rating', 'y': 'Count'},
+                    color=rating_counts.values,
+                    color_continuous_scale="RdYlGn"
+                )
+                st.plotly_chart(fig_rating, use_container_width=True)
+            else:
+                # Show source distribution instead
+                if 'source' in filtered_df.columns:
+                    source_counts = filtered_df['source'].value_counts()
+                    fig_source = px.bar(
+                        x=source_counts.values,
+                        y=source_counts.index,
+                        title="Source Distribution (Filtered Data)",
+                        labels={'x': 'Count', 'y': 'Source'},
+                        orientation='h'
+                    )
+                    st.plotly_chart(fig_source, use_container_width=True)
 
 
 # --- Main App Logic ---
 def main_app():
     # Updated dashboard title
-    st.markdown('<h1 class="main-header">📊 PulsePoint - Voice of the Customer</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-header fade-in">📊 PulsePoint - Voice of the Customer</h1>', unsafe_allow_html=True)
     
     # --- Predefined File Path ---
     csv_file_path = "sentiment_25aug.csv" 
@@ -907,7 +1180,7 @@ def main_app():
         
         sentiment_method = st.selectbox(
             "🧠 Sentiment Analysis Method",
-            ["TextBlob"] if transformer_available else ["TextBlob"],
+            ["TextBlob"] if not transformer_available else ["TextBlob", "Transformer"],
             key="global_sentiment_method", # Unique key for this widget
             help="Choose the sentiment analysis method. Transformer models are more accurate but slower. Requires 'transformers' library."
         )
@@ -934,7 +1207,7 @@ def main_app():
         st.header("📊 Dashboard Views")
         page_selection = st.radio(
             "Explore Data By:",
-            ["📈 Overview", "📱 PlayStore Feedback", "🚗 Trip Feedback", "🚨 Escalations"],
+            ["📈 Overview", "📱 PlayStore Feedback", "🚗 Trip Feedback", "🚨 Escalations", "🔍 Raw Data"],
             key="page_selection" # Unique key for this widget
         )
 
@@ -960,16 +1233,14 @@ def main_app():
         st.markdown("• **Super Happy:** Explicitly positive (Positive sentiment + Rating 4/5) OR Consistently good & engaged (>=5 feedback, no bad ratings, avg sentiment > 0.1).")
         st.markdown("• **Super Sad:** Explicitly negative (Negative sentiment + Rating 1/2) OR Consistently bad & engaged (>=3 feedback, at least one bad rating, avg sentiment < -0.1).")
 
-
     try:
         with st.spinner(f"📊 Loading and processing your data from {csv_file_path}..."):
-            df = load_and_process_data(csv_file_path)
+            df = load_and_process_data("sentiment_25aug.csv")
             
             # Apply global date filter
             if 'timestamp' in df.columns and not df['timestamp'].isna().all():
                 df_filtered = df[(df['timestamp'].dt.date >= start_date) & 
                                  (df['timestamp'].dt.date <= end_date)].copy()
-                st.write(f"DEBUG: Records after Date Filter: {len(df_filtered)}") # Debugging statement
                 
                 if time_granularity == "Daily":
                     df_filtered['time_period'] = df_filtered['timestamp'].dt.date
@@ -990,7 +1261,6 @@ def main_app():
                 df_to_display = df_processed_all[df_processed_all['customer_type'] == selected_customer_type].copy()
             else:
                 df_to_display = df_processed_all.copy()
-            st.write(f"DEBUG: Records after Customer Type ('{selected_customer_type}') Filter: {len(df_to_display)}") # Debugging statement
         
         if df_to_display.empty:
             st.error("No data available after applying initial filters and view selection. Please adjust your date range, check the input CSV file, or try different customer type filters.")
@@ -999,30 +1269,32 @@ def main_app():
             st.success(f"✅ Processed {len(df_to_display)} feedback records successfully for the selected view, period, and customer type!")
             
             # --- Download Button for Processed Data ---
-            csv_output = df_to_display.to_csv(index=False).encode('utf-8')
-            download_file_name = f"processed_sentiment_data_{page_selection.replace(' ', '_').replace('📈','').replace('📱','').replace('🚗','').replace('🚨','')}_{selected_customer_type}.csv"
-            st.download_button(
-                label="⬇️ Download Processed Data (CSV)",
-                data=csv_output,
-                file_name=download_file_name,
-                mime="text/csv",
-                help="Download the current filtered and processed feedback data."
-            )
+            if page_selection != "🔍 Raw Data":  # Don't show download button on raw data page (it has its own)
+                csv_output = df_to_display.to_csv(index=False).encode('utf-8')
+                download_file_name = f"processed_sentiment_data_{page_selection.replace(' ', '_').replace('📈','').replace('📱','').replace('🚗','').replace('🚨','')}_{selected_customer_type}.csv"
+                st.download_button(
+                    label="⬇️ Download Processed Data (CSV)",
+                    data=csv_output,
+                    file_name=download_file_name,
+                    mime="text/csv",
+                    help="Download the current filtered and processed feedback data."
+                )
             st.markdown("---")
             # --- End Download Button ---
 
-            # Display summary metrics on the main dashboard area for all pages
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                playstore_count = len(df_to_display[df_to_display['source'].str.contains('play_store', case=False, na=False)])
-                st.metric("📱 PlayStore Reviews (Filtered)", playstore_count)
-            with col2:
-                trip_count = len(df_to_display[df_to_display['source'].str.contains('Trip', case=False, na=False)])
-                st.metric("🚗 Trip Feedbacks (Filtered)", trip_count)
-            with col3:
-                escalation_count = len(df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)])
-                st.metric("🚨 Escalations (Filtered)", escalation_count)
-            st.markdown("---") # Separator after metrics
+            # Display summary metrics on the main dashboard area for all pages except Raw Data
+            if page_selection != "🔍 Raw Data":
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    playstore_count = len(df_to_display[df_to_display['source'].str.contains('play_store', case=False, na=False)])
+                    st.metric("📱 PlayStore Reviews (Filtered)", playstore_count)
+                with col2:
+                    trip_count = len(df_to_display[df_to_display['source'].str.contains('Trip', case=False, na=False)])
+                    st.metric("🚗 Trip Feedbacks (Filtered)", trip_count)
+                with col3:
+                    escalation_count = len(df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)])
+                    st.metric("🚨 Escalations (Filtered)", escalation_count)
+                st.markdown("---") # Separator after metrics
 
             # Render the selected page content
             if page_selection == "📈 Overview":
@@ -1032,21 +1304,19 @@ def main_app():
             elif page_selection == "🚗 Trip Feedback":
                 create_trip_feedback_view(df_to_display)
             elif page_selection == "🚨 Escalations":
-                # Add debugging specific to escalation view here
-                st.write(f"DEBUG: Entering Escalation View. Records in current DataFrame: {len(df_to_display)}")
-                escalation_df_filtered_source = df_to_display[df_to_display['source'].str.contains('Escalation', case=False, na=False)].copy()
-                st.write(f"DEBUG: Records in Escalation View (after source filter): {len(escalation_df_filtered_source)}")
-                create_escalation_view(escalation_df_filtered_source)
+                create_escalation_view(df_to_display)
+            elif page_selection == "🔍 Raw Data":
+                create_raw_data_view(df_to_display)
             
     except FileNotFoundError:
         st.error(f"❌ Error: The file was not found at the specified path: `{csv_file_path}`")
-        st.info("Please ensure your 'data_sentiments - Sheet1 (4).csv' file is located in the same directory as your script, or update the `csv_file_path` variable with the correct absolute path.")
+        st.info("Please ensure your CSV file is located in the same directory as your script, or update the `csv_file_path` variable with the correct absolute path.")
     except pd.errors.EmptyDataError:
         st.error(f"❌ Error: The file at `{csv_file_path}` is empty or has no data.")
         st.info("Please ensure your CSV file contains data.")
     except Exception as e:
         st.error(f"❌ An unexpected error occurred during data processing: {str(e)}")
-        st.info("Please verify your CSV file's format. It should contain columns like `feedback_id`, `timestam` (or `timestamp`), `source`, `user_id`, `rating`, `feedback`, `escalated_flag`, and `customer_type`.")
+        st.info("Please verify your CSV file's format. It should contain columns like `feedback_id`, `timestamp_` (or similar), `source`, `user_id`, `rating`, `feedback`, `escalated_flag`, and `customer_type`.")
         
         with st.expander("🔍 Show Detailed Error Information"):
             st.write(f"Attempted to load data from: `{csv_file_path}`")
@@ -1061,8 +1331,12 @@ def main_app():
             st.write(f"Detailed error: {e}")
 
     # Add creators' names at the very bottom
-    st.markdown("<p style='text-align: center; margin-top: 50px; color: #777;'>Developed by Yash & Mohit</p>", unsafe_allow_html=True)
+    st.markdown("""
+    <div style='text-align: center; margin-top: 50px; padding: 20px; background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%); border-radius: 10px;'>
+        <p style='color: #4a5568; font-size: 14px; margin: 0;'>🚀 Developed with ❤️ by <strong>Yash & Mohit</strong></p>
+        <p style='color: #718096; font-size: 12px; margin: 5px 0 0 0;'>Enhanced PulsePoint Dashboard v2.0</p>
+    </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main_app()
-
