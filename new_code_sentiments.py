@@ -38,6 +38,11 @@ try:
 except ImportError:
     transformer_available = False
 
+password = st.text_input("Enter Access Key:", type="password")
+
+if password != st.secrets["access_password"]:
+    st.stop()  # block the rest of the app if wrong
+
 # Configure Streamlit page settings
 st.set_page_config(
     page_title="📊 PulsePoint - Voice of the Customer",
