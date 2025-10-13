@@ -1,13 +1,42 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
 import streamlit as st
 from streamlit_oauth import OAuth2Component
+import pandas as pd
+import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import seaborn as sns
+import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
+import re
+from collections import Counter
+from wordcloud import WordCloud
+import io
+import base64
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from textblob import TextBlob
+
+# For transformer sentiment analysis
+try:
+    from transformers import pipeline
+    transformer_available = True
+except ImportError:
+    transformer_available = False
+
+# --- STREAMLIT PAGE CONFIG ---
+st.set_page_config(
+    page_title="📊 PulsePoint - Voice of the Customer",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # --- GOOGLE LOGIN SETUP ---
-st.set_page_config(page_title="PulsePoint", layout="wide")
-
 CLIENT_ID = "890787371243-nt7as274q4m0bdm2la379vqu93h6br15.apps.googleusercontent.com"
 CLIENT_SECRET = "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"
 REDIRECT_URI = "https://wheelseyesentiment-1.streamlit.app/"  # replace with your Streamlit Cloud app URL
@@ -40,6 +69,13 @@ if not email.endswith("@wheelseye.com"):
     st.stop()
 
 st.success(f"✅ Welcome, {email}!")
+
+# --- NLTK SETUP ---
+try:
+    stopwords.words('english')
+except LookupError:
+    nltk.download('stopwords')
+    nltk.download('punkt')  # only punkt is valid
 
 
 import streamlit as st
