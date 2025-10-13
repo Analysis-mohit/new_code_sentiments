@@ -2,6 +2,44 @@
 # coding: utf-8
 
 # In[ ]:
+import streamlit as st
+from streamlit_oauth import OAuth2Component
+
+# --- GOOGLE LOGIN SETUP ---
+st.set_page_config(page_title="PulsePoint", layout="wide")
+
+CLIENT_ID = "890787371243-nt7as274q4m0bdm2la379vqu93h6br15.apps.googleusercontent.com"
+CLIENT_SECRET = "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"
+REDIRECT_URI = "https://wheelseyesentiment-1.streamlit.app/"  # replace with your Streamlit Cloud app URL
+
+oauth = OAuth2Component(
+    client_id=CLIENT_ID,
+    client_secret=CLIENT_SECRET,
+    authorize_url="https://accounts.google.com/o/oauth2/auth",
+    token_url="https://oauth2.googleapis.com/token",
+    redirect_uri=REDIRECT_URI
+)
+
+st.title("🔐 WheelsEye Internal Access")
+
+# Ask user to log in
+result = oauth.authorize_button(
+    "Sign in with Google",
+    scopes=["email", "profile"],
+    key="google_login"
+)
+
+if not result or "email" not in result:
+    st.info("Please sign in with your @wheelseye.com account to access this dashboard.")
+    st.stop()
+
+email = result["email"]
+
+if not email.endswith("@wheelseye.com"):
+    st.error("Access denied. Only @wheelseye.com accounts are allowed.")
+    st.stop()
+
+st.success(f"✅ Welcome, {email}!")
 
 
 import streamlit as st
