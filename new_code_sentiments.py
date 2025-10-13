@@ -1056,7 +1056,7 @@ def create_raw_data_view(df):
     with col3:
         # Download button
         if not filtered_df.empty:
-             = filtered_df.to_csv(index=False).encode('utf-8')
+           csv = filtered_df.to_csv(index=False).encode('utf-8')
             st.download_button(
                 label="⬇️ Download CSV",
                 data=csv,
